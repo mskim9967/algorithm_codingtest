@@ -35,7 +35,7 @@ public class QuadTree{
             if(str[i] != 'x')
                 stack.push(new Space(str[i]));
             else
-    			stack.push(new Space(stack.pop(), stack.pop(), stack.pop(), stack.pop()));
+                stack.push(new Space(stack.pop(), stack.pop(), stack.pop(), stack.pop()));
         }
         space = stack.pop();
     }
