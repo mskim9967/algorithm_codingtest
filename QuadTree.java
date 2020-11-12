@@ -26,10 +26,7 @@ public class QuadTree{
     char[] str;
     
     QuadTree(Scanner scanner) {
-        String line = scanner.nextLine();
-        str = new char[line.length()];
-        for(int i = 0; i < line.length(); i++)
-            str[i] = line.charAt(i);
+        str = scanner.nextLine().toCharArray();
     }
 
     void makeSpace() {
