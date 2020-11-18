@@ -4,9 +4,13 @@ import java.util.*;
 public class Karatsuba{
     int[] a, b;
     
-    Karatsuba(long ai, long bi) {
-        a = convert_arr(ai);
-        b = convert_arr(bi);
+    Karatsuba(String s1, String s2) {
+        a = new int[s1.length()];
+        for(int i = 0; i < s1.length(); i++) 
+            a[i] = s1.charAt(s1.length() - 1 - i) - '0';
+        b = new int[s2.length()];
+        for(int i = 0; i < s2.length(); i++) 
+            b[i] = s2.charAt(s2.length() - 1 - i) - '0';
     }
  
     int[] karatsuba(int[] a, int[] b) {
@@ -18,7 +22,7 @@ public class Karatsuba{
         
         if(a.length + b.length < 5)
             return multiple(a, b);
-            
+
         int mid = a.length / 2;
         
         int[] a0, a1, b0, b1;
@@ -27,39 +31,15 @@ public class Karatsuba{
         b0 = new int[mid < b.length ? mid : b.length];
         b1 = new int[mid < b.length ? b.length - mid : 0];
         
-        System.arraycopy(a, 0, a0, 0, a0.length);
-        System.arraycopy(a, mid, a1, 0, a1.length);
-        System.arraycopy(b, 0, b0, 0, b0.length);
-        System.arraycopy(b, mid, b1, 0, b1.length);
-        
-         System.out.println("a0");
-            for(int i = a0.length - 1; i >= 0; i--) 
-        System.out.print(a0[i] + " ");
-        System.out.println();
-         System.out.println("a1");
-            for(int i = a1.length - 1; i >= 0; i--) 
-        System.out.print(a1[i] + " ");
-                System.out.println();
-                 System.out.println("b0");
-            for(int i = b0.length - 1; i >= 0; i--) 
-        System.out.print(b0[i] + " ");
-                System.out.println();
-                 System.out.println("b1");
-            for(int i = b1.length - 1; i >= 0; i--) 
-        System.out.print(b1[i] + " ");
-                System.out.println();
-        
+       for(int i = 0; i < a0.length; i++) a0[i] = a[i];
+       for(int i = 0; i < a1.length; i++) a1[i] = a[mid + i];
+       for(int i = 0; i < b0.length; i++) b0[i] = b[i];
+       for(int i = 0; i < b1.length; i++) b1[i] = b[mid + i];
         
         int[] z0 = karatsuba(a0, b0);
         int[] z2 = karatsuba(a1, b1);
         int[] z1 = minus(karatsuba(plus(a0, a1), plus(b0, b1)), plus(z0, z2));
         return plus(plus(shift(z2, mid * 2), shift(z1, mid)), z0);
-    }
-    
-    void swap(int[] a, int[] b) {
-        int[] temp = a;
-        a = b;
-        b = temp;
     }
     
     boolean isBigger(int[] a, int[] b) {
@@ -97,56 +77,52 @@ public class Karatsuba{
         }
 
         int[] ret = (int[]) a.clone();
-        
         for(int i = 0; i < b.length; i++) 
             ret[i] += b[i];
-        
+        return refine(ret);
+    }
+    
+    int[] minus(int[] a, int[] b) {
+        int[] ret = (int[]) a.clone();
+        for(int i = 0; i < b.length; i++) 
+            ret[i] -= b[i];
+        return refine(ret);
+    }
+    
+    int[] refine(int[] a) {
+        int[] ret = a.clone();
+        if(a.length == 0) return ret;
         for(int i = 0; i < ret.length - 1; i++) {
             if(ret[i] > 9) {
                 ret[i] -= 10;
                 ret[i + 1] += 1;
             }
-        }
-                
-        if(ret[ret.length - 1] > 9) {   //extend
-            ret[ret.length - 1] -= 10;
-            int[] temp = ret;
-            ret = new int[temp.length + 1];
-            System.arraycopy(temp, 0, ret, 0, temp.length);
-            ret[ret.length - 1] = 1;
-        }
-        
-        return ret;
-    }
-    
-    int[] minus(int[] a, int[] b) {
-        if(isBigger(b, a)) {
-            int[] temp = a;
-            a = b;
-            b = temp;
-        }
-        int[] ret = (int[]) a.clone();
-        
-        for(int i = 0; i < b.length; i++) 
-            ret[i] -= b[i];
-        
-        for(int i = 0; i < ret.length; i++) {
-            if(ret[i] < 0) {
+            else if(ret[i] < 0) {
                 ret[i] += 10;
                 ret[i + 1] -= 1;
             }
         }
+
+        if(ret[ret.length - 1] > 9) {   //extend
+            ret[ret.length - 1] -= 10;
+            int[] temp = ret;
+            ret = new int[temp.length + 1];
+            for(int i = 0; i < temp.length; i++) ret[i] = temp[i];
+            ret[ret.length - 1] = 1;
+        }
+
         
         for(int i = ret.length - 1; i >= 0; i--) {
             if(ret[i] != 0) {
                 int[] temp = ret;
                 ret = new int[i + 1];
-                System.arraycopy(temp, 0, ret, 0, ret.length);
+                for(int j = 0; j < ret.length; j++) ret[j] = temp[j];
                 break;
-            }   
+            }
+            if(i == 0 && ret[i] == 0) ret = new int[0];
         }
         return ret;
-    }
+     }
     
     int[] shift(int[] a, int n) {
         if(a.length == 0)   return new int[0];
@@ -159,10 +135,11 @@ public class Karatsuba{
     
     
     public static void main(String []args) throws Exception {
-      Karatsuba k = new Karatsuba(12345, 987654);
+      Karatsuba k = new Karatsuba("893724358493284", "238947328947329");
       int[] ret = k.karatsuba(k.a, k.b);
       
       for(int i = ret.length - 1; i >= 0; i--) 
         System.out.print(ret[i] + " ");
     }
 }
+//"893724358493284", "238947328947329", 2 1 3 5 5 3 0 4 8 2 7 7 1 3 5 3 2 0 5 5 2 2 3 6 2 3 8 4 3 6 
