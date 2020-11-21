@@ -60,8 +60,10 @@ class Karatsuba{
     int[] a, b;
 
     Karatsuba(int[] aa, int[] bb) {
-        a = aa;
-        b = bb;
+        a = new int[aa.length];
+        b = new int[bb.length];
+        System.arraycopy(aa, 0, a, 0, aa.length);
+        System.arraycopy(bb, 0, b, 0, bb.length);
     }
  
     int[] karatsuba(int[] a, int[] b) {
@@ -75,7 +77,7 @@ class Karatsuba{
         
         int mid = aLen / 2;
        
-        if(mid < 10)
+        if(mid < 5)
             return multiple(a, b);
 
         int[] a0, a1, b0, b1;
@@ -87,7 +89,7 @@ class Karatsuba{
         System.arraycopy(a, 0, a0, 0, mid);
         System.arraycopy(a, mid, a1, 0, aLen - mid);
         System.arraycopy(b, 0, b0, 0, mid < bLen ? mid : bLen);
-        System.arraycopy(b, mid < b.length ? mid : 0, b1, 0, mid < bLen ? bLen - mid : 0);
+        System.arraycopy(b, mid < bLen ? mid : 0, b1, 0, mid < bLen ? bLen - mid : 0);
 
         int[] z0 = karatsuba(a0, b0);
         int[] z2 = karatsuba(a1, b1);
@@ -104,22 +106,24 @@ class Karatsuba{
         return true;
     }
  
-    int[] multiple(int[] a, int[] b) {
-        int aLen = a.length, bLen = b.length;
-        if(aLen * bLen == 0)    return new int[0];
-        int[] ret = new int[aLen];
-        for(int i = 0; i < aLen; i++)
-            ret[i] = a[i] * b[0];
-        
-        for(int i = 1; i < bLen; i++) {
-            int[] temp = new int[aLen];
-            for(int j = 0; j < aLen; j++) {
-                temp[j] = a[j] * b[i]; 
-            }
-            temp = shift(temp, i);
-            ret = plus(temp, ret);
-        }
+     int[] convert_arr(int integer) {
+        int len = 0;
+        for(int i = integer; i != 0; i /= 10)    len++;
+        int ret[] = new int[len];
+        int temp = integer;
+        for(int i = 0; i < len; temp /= 10, i++)
+            ret[i] = (int)(temp % 10);
         return ret;
+    }
+
+    int[] multiple(int[] a, int[] b) {
+        int ai = 0, bi = 0, aLen = a.length, bLen = b.length;
+        if(aLen == 0 || bLen == 0)  return new int[0];
+        for(int i = 0; i < aLen; i++)
+            ai += a[i] * (int)Math.pow(10, i);
+        for(int i = 0; i < bLen; i++)
+            bi += b[i] * (int)Math.pow(10, i);
+        return convert_arr(ai * bi);
     }
     
     int[] plus(int[] a, int[] b) {
@@ -130,9 +134,8 @@ class Karatsuba{
         }
         int aLen = a.length, bLen = b.length;
         int[] ret = new int[aLen];
-        System.arraycopy(a, 0, ret, 0, aLen);
         for(int i = 0; i < bLen; i++) 
-            ret[i] += b[i];
+            ret[i] = a[i] + b[i];
         return ret;
     }
     
@@ -144,9 +147,8 @@ class Karatsuba{
         }
         int aLen = a.length, bLen = b.length;
         int[] ret = new int[aLen];
-        System.arraycopy(a, 0, ret, 0, aLen);
         for(int i = 0; i < bLen; i++) 
-            ret[i] -= b[i];
+            ret[i] = a[i] - b[i];
         return ret;
     }
     
