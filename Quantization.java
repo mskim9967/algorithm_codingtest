@@ -2,17 +2,18 @@ import java.util.*;
 import java.io.*;
 
 public class Main{
-    int[] arr, arrSum;
+    int[] arr, arrSum, arrSqSum;
     int[][] cache;
     int s;
+    final int INT_MAX = Integer.MAX_VALUE / 2;
     
     Main(BufferedReader br) throws Exception {
         String[] parse = br.readLine().split(" ");
         arr = new int[Integer.parseInt(parse[0])];
         arrSum = new int[Integer.parseInt(parse[0])];
+        arrSqSum = new int[Integer.parseInt(parse[0])];
         s = Integer.parseInt(parse[1]);
         cache = new int[arr.length][s];
-        
         for(int i = 0; i < cache.length; i++)
             for(int j = 0 ;j < cache[i].length; j++)
                 cache[i][j] = -1;
@@ -20,31 +21,28 @@ public class Main{
         parse = br.readLine().split(" ");
         for(int i = 0; i < arr.length; i++) 
             arr[i] = Integer.parseInt(parse[i]);
-
         Arrays.sort(arr);
         
         arrSum[0] = arr[0];
-        for(int i = 1; i < arr.length; i++)
+        arrSqSum[0] = arr[0] * arr[0];
+        for(int i = 1; i < arr.length; i++) {
             arrSum[i] = arr[i] + arrSum[i - 1];
-
+            arrSqSum[i] = arr[i] * arr[i] + arrSqSum[i - 1];
+        }
     }
     
-    int min(int a, int b) {return a < b ? a : b;}
-    
     int quantizate(int idx, int num) {
-        if(num == 0)    return 0;
-        if(idx >= arr.length)   return 9999999;
-        
+        if(idx == arr.length || num == 0) {
+            if(idx == arr.length && num == 0)    return 0;
+            return INT_MAX;
+        }
         if(cache[idx][num - 1] != -1)  return cache[idx][num - 1];
-        int ret = 99999999;
+        
+        int ret = INT_MAX;
         for(int i = idx; i < arr.length; i++) {
             int mid = (int)(Math.round((arrSum[i] - arrSum[idx] + arr[idx]) / (float)(i - idx + 1)));
-            //System.out.println(mid );
-            int sqSum = 0;
-            for(int j = idx; j <= i; j++)
-                sqSum += (arr[j] - mid) * (arr[j] - mid);
-            ret = min(ret, sqSum + quantizate(i + 1, num - 1));
-            System.out.println(ret);
+            int sqSum = (arrSqSum[i] - arrSqSum[idx] + arr[idx] * arr[idx]) - (2 * mid * (arrSum[i] - arrSum[idx] + arr[idx])) + (mid * mid * (i - idx + 1));
+            ret = Integer.min(ret, sqSum + quantizate(i + 1, num - 1));
         }
         return cache[idx][num - 1] = ret;
     }
@@ -55,11 +53,13 @@ public class Main{
         int testCase = Integer.parseInt(br.readLine());
         for(int i = 0; i < testCase; i++) {
             Main q = new Main(br);
-            bw.write(q.quantizate(0, q.s)+ "\n");
+            if(q.arr.length <= q.s)
+                bw.write("0\n");
+            else    
+                bw.write(q.quantizate(0, q.s)+ "\n");
         }
         bw.flush();
         bw.close();
         br.close();
     }
-
 }
