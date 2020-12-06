@@ -7,6 +7,7 @@ public class Main{
     double[] B;
     double [][] T, M;
     double[][] cache;
+    int[][] chs;
 
     Main(BufferedReader br) throws Exception {
         String[] parse = br.readLine().split(" ");
@@ -46,46 +47,55 @@ public class Main{
     }
     
     double maxNumerator(int idx, int chsWordIdx) {
-        if(idx == n)    return 1;
+        if(idx == n)    return 1.0;
         if(cache[idx][chsWordIdx] < 1.0)    return cache[idx][chsWordIdx];
         
-        double ret;
+        double ret = 0.0;
         
-        double pR_S = 0.0;
-        for(int i = 0; i < m; i++)
-            pR_S = Math.max(pR_S, M[i][get_idx(R[idx])]);
-        
-        double pS = 0.0;
-        if(idx == 0) {
-            for(int i = 0; i < m; i++) {
-                if(pS >= B[i]) continue;
-                pS = B[i];
-                chsWordIdx = i;
+        for(int i = 0; i < m; i++) {
+            if(idx == 0) {
+                if(ret >= M[i][get_idx(R[idx])] * B[i] * maxNumerator(idx + 1, i))
+                    continue;
+                ret = M[i][get_idx(R[idx])] * B[i] * maxNumerator(idx + 1, i);
             }
-        }
-        else {
-            for(int i = 0; i < m; i++) {
-                if(pS >= T[chsWordIdx][i]) continue;
-                pS = T[chsWordIdx][i];
-                chsWordIdx = i;
+            else {
+                if(ret >= M[i][get_idx(R[idx])] * T[chsWordIdx][i] * maxNumerator(idx + 1, i))
+                    continue;
+                ret = M[i][get_idx(R[idx])] * T[chsWordIdx][i] * maxNumerator(idx + 1, i);
             }
+            chs[idx][chsWordIdx] = i;
         }
+
+        return cache[idx][chsWordIdx] = ret;
+    }
+    
+    void print_ans(int idx, int chsWordIdx) {
+        if(idx == n)    return ;
         
-        return pR_S * pS * maxNumerator(idx + 1, chsWordIdx);
+        int next = chs[idx][chsWordIdx];
+        System.out.print(word[next] + " ");
+        print_ans(idx + 1, next);
+            
     }
     
     void write_answer(BufferedReader br, BufferedWriter bw) throws Exception {
-        String[] parse = br.readLine().split(" ");
-        n = Integer.parseInt(parse[0]);
-        R = new String[n];
-        for(int i = 0; i < n; i++) 
-            R[i] = parse[i];
-        
-        cache = new double[n][m];
-        for(int i = 0; i < cache.length; i++)
-            for(int j = 0; j < cache[i].length; j++) 
-                cache[i][j] = 1.1;
-        
+        for(int k = 0; k < q; k++) { 
+            String[] parse = br.readLine().split(" ");
+            n = Integer.parseInt(parse[0]);
+            R = new String[n];
+            for(int i = 0; i < n; i++) 
+                R[i] = parse[i];
+     
+            cache = new double[n][m];
+            for(int i = 0; i < cache.length; i++)
+                for(int j = 0; j < cache[i].length; j++) 
+                    cache[i][j] = 1.1;
+            
+            chs = new int[n][m];
+            
+            maxNumerator(0, 0);
+            print_ans(0, 0);
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -93,7 +103,7 @@ public class Main{
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         
         Main o = new Main(br);
-
+        o.write_answer(br, bw);
         
         bw.flush(); bw.close(); br.close();
     }
