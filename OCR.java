@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main{
     int m, q, n;
-    String[] word, R;
+    String[] word, R, ans;
     double[] B;
     double [][] T, M;
     double[][] cache;
@@ -22,46 +22,49 @@ public class Main{
         B = new double[m];
         parse = br.readLine().split(" ");
         for(int i = 0; i < m; i++)
-            B[i] = Double.parseDouble(parse[i]);
+            B[i] = Math.log(Double.parseDouble(parse[i]));
         
         T = new double[m][m];
         for(int i = 0; i < m; i++) {
             parse = br.readLine().split(" ");
             for(int j = 0; j < m; j++)
-                T[i][j] = Double.parseDouble(parse[j]);
+                T[i][j] = Math.log(Double.parseDouble(parse[j]));
         }
         
         M = new double[m][m];
         for(int i = 0; i < m; i++) {
             parse = br.readLine().split(" ");
             for(int j = 0; j < m; j++)
-                M[i][j] = Double.parseDouble(parse[j]);
+                M[i][j] = Math.log(Double.parseDouble(parse[j]));
         }
     }
     
-    int get_idx(String word) {
+    int get_idx(String wword) {
         for(int i = 0; i < m; i++)
-            if(word.equals(this.word[i]))
+            if(wword.equals(word[i])){
                 return i;
+            }
         return 0;
     }
     
     double maxNumerator(int idx, int chsWordIdx) {
-        if(idx == n)    return 1.0;
+        if(idx == n)    return 0.0;
         if(cache[idx][chsWordIdx] < 1.0)    return cache[idx][chsWordIdx];
         
-        double ret = 0.0;
+        double ret = Double.MIN_VALUE;
         
         for(int i = 0; i < m; i++) {
             if(idx == 0) {
-                if(ret >= M[i][get_idx(R[idx])] * B[i] * maxNumerator(idx + 1, i))
+                if(ret <= M[i][get_idx(R[idx])] + B[i] + maxNumerator(idx + 1, i))
                     continue;
-                ret = M[i][get_idx(R[idx])] * B[i] * maxNumerator(idx + 1, i);
+                ret = M[i][get_idx(R[idx])] + B[i] + maxNumerator(idx + 1, i);
+                ans[idx] = new String(word[i]);
             }
             else {
-                if(ret >= M[i][get_idx(R[idx])] * T[chsWordIdx][i] * maxNumerator(idx + 1, i))
+                if(ret <= M[i][get_idx(R[idx])] + T[chsWordIdx][i] + maxNumerator(idx + 1, i))
                     continue;
-                ret = M[i][get_idx(R[idx])] * T[chsWordIdx][i] * maxNumerator(idx + 1, i);
+                ret = M[i][get_idx(R[idx])] + T[chsWordIdx][i] + maxNumerator(idx + 1, i);
+                ans[idx] = new String(word[i]);
             }
             chs[idx][chsWordIdx] = i;
         }
@@ -75,7 +78,6 @@ public class Main{
         int next = chs[idx][chsWordIdx];
         System.out.print(word[next] + " ");
         print_ans(idx + 1, next);
-            
     }
     
     void write_answer(BufferedReader br, BufferedWriter bw) throws Exception {
@@ -83,8 +85,9 @@ public class Main{
             String[] parse = br.readLine().split(" ");
             n = Integer.parseInt(parse[0]);
             R = new String[n];
-            for(int i = 0; i < n; i++) 
-                R[i] = parse[i];
+            for(int i = 1; i <= n; i++) {
+                R[i - 1] = parse[i];
+            }
      
             cache = new double[n][m];
             for(int i = 0; i < cache.length; i++)
@@ -92,9 +95,12 @@ public class Main{
                     cache[i][j] = 1.1;
             
             chs = new int[n][m];
+            ans = new String[n];
             
             maxNumerator(0, 0);
-            print_ans(0, 0);
+            //print_ans(0, 0);
+            for(int i =0; i < n; i++)
+                bw.write(ans[i] + " ");
         }
     }
 
