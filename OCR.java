@@ -3,10 +3,11 @@ import java.io.*;
 
 public class Main{
     int m, q, n;
-    String[] word, R;
+    String[] word;
     double[] B;
     double [][] T, M, cache;
     int[][] chsCache;
+    int[] R;
 
     Main(BufferedReader br) throws Exception {
         String[] parse = br.readLine().split(" ");
@@ -50,7 +51,7 @@ public class Main{
         
         double ret = -Double.MAX_VALUE;
         for(int i = 0; i < m; i++) {
-            double calc = M[i][get_idx(R[idx])] + maxNumerator(idx + 1, i);
+            double calc = M[i][R[idx]] + maxNumerator(idx + 1, i);
             calc += (idx == 0) ? B[i] : T[chsWordIdx][i];
             
             if(ret > calc)  continue;
@@ -70,14 +71,14 @@ public class Main{
     void write_answer(BufferedReader br, BufferedWriter bw) throws Exception {
         String[] parse = br.readLine().split(" ");
         n = Integer.parseInt(parse[0]);
-        R = new String[n];
+        R = new int[n];
         for(int i = 1; i <= n; i++) 
-            R[i - 1] = parse[i];
+            R[i - 1] = get_idx(parse[i]);
         
         cache = new double[n][m];
         for(int i = 0; i < cache.length; i++)
             for(int j = 0; j < cache[i].length; j++) 
-                cache[i][j] = 1.1;
+                cache[i][j] = 2.0;
         
         chsCache = new int[n][m];
         
