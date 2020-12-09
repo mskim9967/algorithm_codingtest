@@ -2,9 +2,11 @@ import java.util.*;
 import java.io.*;
 
 public class Main{
-    int n, k, lisLen;
-    int[] seq, lenCache, cntCache;
-
+    int n;
+    long k;
+    int[] seq, lenCache;
+    long[] cntCache;
+    
     Main(BufferedReader br) throws Exception {
         String[] parse = br.readLine().split(" ");
         n = Integer.parseInt(parse[0]);
@@ -19,7 +21,7 @@ public class Main{
         lenCache = new int[n + 1];
         Arrays.fill(lenCache, -1);
         
-        cntCache = new int[n + 1];
+        cntCache = new long[n + 1];
         Arrays.fill(cntCache, -1);
     }
     
@@ -27,59 +29,57 @@ public class Main{
         if(lenCache[now] != -1) return lenCache[now];
 
         int ret = 1;
-        for(int next = now + 1; next <= n; next++) {
+        for(int next = now + 1; next < seq.length; next++) 
             if(seq[now] < seq[next]) 
                 ret = Math.max(ret, 1 + calc_lisLen(next));
-        }
+        
         return lenCache[now] = ret;        
     }
     
-    int calc_lisCnt(int now) {
-        if(lenCache[now] == 1) return cntCache[now] = 1;
+    long calc_lisCnt(int now) {
         if(cntCache[now] != -1) return cntCache[now];
         
-        int ret = 0;
-        for(int next = now + 1; next <= n; next++) {
-            if(lenCache[next] != lenCache[now] - 1)
-                continue;
-            if(seq[now] < seq[next])
-                ret += calc_lisCnt(next);
-        }
+        long ret = 0;
+        for(int next = now + 1; next < seq.length; next++) 
+            if(seq[now] < seq[next] && lenCache[next] == lenCache[now] - 1)
+                ret = Math.min(Integer.MAX_VALUE, ret + calc_lisCnt(next));
+        
+        if(lenCache[now] == 1)  ret = 1;
         return cntCache[now] = ret;
     }
 
-    void print(int len) {
-        class Pair implements Comparable<Pair> {
-            int a, b;
-            Pair(int a, int b) { this.a = a; this.b = b; }
-            public int compareTo(Pair o) { return this.a > o.a ? 1 : -1; }
-        }
-        
+    class Pair implements Comparable<Pair> {
+        int element, idx;
+        Pair(int element, int idx) { this.element = element; this.idx = idx; }
+        public int compareTo(Pair o) { return this.element > o.element ? 1 : -1; }
+    }
+
+    void write_KLIS(BufferedWriter bw, int len, int prev) throws Exception {
         if(len == 0)    return;
         
-        Vector<Pair> picked = new Vector<Pair>();
-        for(int i = 1; i <= n; i++) {
-            if(lenCache[i] == len)
+        PriorityQueue<Pair> picked = new PriorityQueue<>();
+        //Vector<Pair> picked = new Vector<Pair>();
+        for(int i = 1; i < seq.length; i++)
+            if(lenCache[i] == len && seq[i] > prev)
                 picked.add(new Pair(seq[i], i));
-        }
-   
-        Collections.sort(picked);
     
-        while(picked.size() != 0) {
-            Pair pop = picked.get(0);
-            picked.remove(0);
-            if(cntCache[pop.b] > k - 1) {
-                System.out.print(pop.a + " ");
-                print(len - 1);
+        while(true) {
+            Pair pop = picked.poll();
+            if(cntCache[pop.idx] > k - 1) {
+                bw.write(pop.element + " ");
+                write_KLIS(bw, len - 1, pop.element);
                 break;
             }
-            else {
-                k -= cntCache[pop.b];
-            }
+            k -= cntCache[pop.idx];
         }
-        
     }
     
+    void write_answer(BufferedWriter bw) throws Exception {
+        bw.write(calc_lisLen(0) - 1 + "\n");
+        calc_lisCnt(0);
+        write_KLIS(bw, calc_lisLen(0) - 1, 0);
+        bw.write("\n");
+    }
     
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -87,15 +87,7 @@ public class Main{
         int testCase = Integer.parseInt(br.readLine());
         for(int i = 0; i < testCase; i++) {
             Main k = new Main(br);
-            k.lisLen = k.calc_lisLen(0) - 1;
-            k.calc_lisCnt(0);
-        
-            k.print(k.lisLen);
-            
-            bw.write(k.calc_lisLen(0) - 1 + "\n");
-            //for(int j = 0; j <= k.n; j++)
-                //System.out.print(k.cntCache[j] + " ");
-            System.out.println();
+            k.write_answer(bw);
         }
         bw.flush(); bw.close(); br.close();
     }
