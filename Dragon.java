@@ -27,29 +27,29 @@ public class Main{
     void write_k(BufferedWriter bw, String str, int gene) throws Exception {
         if(gene == 0) {
             bw.write(str.charAt(k - 1));
-            k = -1;
             return ;
         }
         
         for(int i = 0; i < str.length(); i++) {
-            if(k == -1)   return;
-            
             if(str.charAt(i) == 'X') {
                 if(k > lenCache[gene])
                     k -= lenCache[gene];
-                else
+                else {
                     write_k(bw, "X+YF", gene - 1);
+                    return ;
+                }
             }
             else if(str.charAt(i) == 'Y') {
                 if(k > lenCache[gene])
                     k -= lenCache[gene];
-                else
+                else {
                     write_k(bw, "FX-Y", gene - 1);
+                    return ;
+                }
             }
             else {
                 if(k == 1) {
                     bw.write(str.charAt(i));
-                    k = -1;
                     return ;
                 }
                 k--;
