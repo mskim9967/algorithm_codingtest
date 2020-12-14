@@ -20,25 +20,27 @@ public class Main{
         Arrays.sort(e);
     }
     
-    int cnt_price(int len, int picked) {
-        if(len < 0) return 0;
-        
+    int cnt_price(int len, int picked, boolean isLess) {
         int ret = 0;
+        
+        if(len == e.length ) {
+            if(isLess == true)
+                return 1;
+            return 0;
+        }
+        
         for(int i = 0; i < e.length; i++) {
-            if(eStr.charAt(len) - '0' < e[i]) continue;
             if(((picked>>i) & 1) == 1) continue;
+            if(!isLess && eStr.charAt(len) - '0' < e[i])  continue;
             if(i != 0 && e[i] == e[i - 1] && ((picked>>(i-1)) & 1) == 0)  continue;
-            System.out.println(eStr.charAt(len) + "/" + e[i]);
-            if(len == 0)    ret += 1;
-            else ret += cnt_price(len - 1, picked | (1<<i));
-
+            ret += cnt_price(len + 1, picked | (1<<i), isLess || e[i] < (eStr.charAt(len) -  '0'));
         }
         return ret;
     }
     
     
     void write_answer(BufferedWriter bw) throws Exception {
-        bw.write(cnt_price(e.length - 1, 0) + "\n");
+        bw.write(cnt_price(0, 0, false) + "\n");
     }
     
     public static void main(String[] args) throws Exception {
