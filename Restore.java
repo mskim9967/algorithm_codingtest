@@ -8,21 +8,23 @@ public class Main{
     
     Main(BufferedReader br) throws Exception {
         int k = Integer.parseInt(br.readLine());
+        
         ArrayList<String> list = new ArrayList<String>();
         list.add("0");
-        for(int i = 0; i < k; i++) {
-            String line = br.readLine();
-            for(int j = 0; j < list.size(); j++) {
-                if(list.get(j).contains(line))
-                    break;
-                if(j == list.size() - 1) {
-                    list.add(line);
-                    break;
+        for(int i = 0; i < k; i++)
+            list.add(br.readLine());
+            
+        for(int i = 1; i < list.size(); i++) {
+            for(int j = 1; j < list.size(); j++) {
+                if(i != j && list.get(i).contains(list.get(j))) {
+                    list.remove(j--);
+                    i--;
                 }
             }
         }
-        arr = list.toArray(new String[list.size()]);
         
+        arr = list.toArray(new String[list.size()]);
+      
         overlapped = new int[arr.length][arr.length];
         for(int i = 0; i < arr.length; i++)
             for(int j = 0; j < arr.length; j++)
@@ -36,10 +38,9 @@ public class Main{
     int calc_overlapped(String a, String b) {
         int ret = 0;
         int len = Math.min(a.length(), b.length());
-        for(int i = 0; i < len; i++)
-            if(b.substring(0, i + 1).equals(a.substring(a.length() - 1 - i)))
-                ret = i + 1;
-        
+        for(int i = 1; i <= len; i++)
+            if(b.substring(0, i).equals(a.substring(a.length() - i)))
+                ret = i;
         return ret;
     }
     
@@ -68,7 +69,7 @@ public class Main{
     }
     
     void write_answer(BufferedWriter bw) throws Exception {
-        write_str(bw, 0, 0);
+        write_str(bw, 0, 1);
         bw.write("\n");
     }
     
@@ -77,10 +78,8 @@ public class Main{
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         int testCase = Integer.parseInt(br.readLine());
         for(int i = 0; i < testCase; i++) {
-            
-            Main z = new Main(br);
-            
-            z.write_answer(bw);
+            Main r = new Main(br);
+            r.write_answer(bw);
         }
         bw.flush(); bw.close(); br.close();
     }
