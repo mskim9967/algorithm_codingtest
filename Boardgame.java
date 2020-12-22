@@ -5,8 +5,8 @@ public class Main{
     final int LEN = 5, RIGHT = 1, LEFT = -1, UP = -LEN, DOWN = LEN;
     int board;
     byte[] cache;
-    final int[] MOVE1 = {RIGHT, DOWN, DOWN, LEFT, RIGHT, UP, LEFT, DOWN};
-    final int[] MOVE2 = {DOWN, LEFT, RIGHT, DOWN, 0, 0, 0, 0};
+    final int[] MOVE1 = {RIGHT, DOWN, DOWN, LEFT, RIGHT, UP};
+    final int[] MOVE2 = {DOWN, LEFT, RIGHT, DOWN, 0, 0};
 
     Main(BufferedReader br) throws Exception {
         cache = new byte[1 << LEN * LEN];
