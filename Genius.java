@@ -30,33 +30,26 @@ public class Main{
         parse = br.readLine().split(" ");
         for(int i = 0; i < m; i++)
             Q[i] = Integer.parseInt(parse[i]);
+
+        cache = new double[k + 1][n];
     }
 
     double calc_prob(int aimed, int min, int now) {
-        if(min == k)    return (now == aimed) ? 1.0 : 0.0;
-        if(cache[min][now] < 1)    return cache[min][now];
+        if(min + L[now] >= k + 1)    return (now == aimed) ? 1.0 : 0.0;
+        if(cache[min][now] < 10.0)    return cache[min][now];
 
         double ret = 0.0;
 
-        if(LL[now] != 0) {
-            LL[now]--;
-            ret = calc_prob(aimed, min + 1, now);
-        }
-        else {
-            LL[now] = L[now];
-            for(int next = 0; next < n; next++) {
-                    ret += T[now][next] * calc_prob(aimed, min + 1, next);
-                
-            }
-        }
+        for(int next = 0; next < n; next++) 
+            ret += T[now][next] * calc_prob(aimed, min + L[now], next);
+        
         return cache[min][now] = ret;
     }
 
     void write_answer(BufferedWriter bw) throws Exception {
         for(int i = 0; i < m; i++) {
-            cache = new double[k + 1][n];
             for(double[] x : cache)
-                Arrays.fill(x, Double.MAX_VALUE);
+                Arrays.fill(x, 100.0);
             bw.write(calc_prob(Q[i], 0, 0) + " ");
         }
         bw.write("\n");
