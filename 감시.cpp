@@ -34,10 +34,10 @@ int count_blind_spot() {
 
 void update_watch_area(int cidx, int dir) {
     Coord cam = cams[cidx];
-    for(int vidx : C[dir][bd[cam.y][cam.x] - 1]) {
+    for(int vidx : C[bd[cam.y][cam.x] - 1]) {
         Coord now = cam;
         while(true) {
-            now = now + VEC[vidx];
+            now = now + VEC[(vidx + dir) % 4];
             // is next out of range or next is wall
             if(now.x < 0 || now.x >= M || now.y < 0 || now.y >= N || bd[now.y][now.x] == 6) break;
             // next is watched area
