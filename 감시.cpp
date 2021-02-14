@@ -34,7 +34,7 @@ int count_blind_spot() {
 
 void update_watch_area(int cidx, int dir) {
     Coord cam = cams[cidx];
-    for(int vidx : (C[bd[cam.y][cam.x] - 1] + dir) % 4) {
+    for(int vidx : C[dir][bd[cam.y][cam.x] - 1]) {
         Coord now = cam;
         while(true) {
             now = now + VEC[vidx];
