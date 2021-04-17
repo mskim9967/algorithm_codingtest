@@ -4,7 +4,7 @@
 using namespace std;
 
 int n, k;
-int cache[10010];
+int cache[100010];
 vector<int> coins;
 
 int main(void) {
