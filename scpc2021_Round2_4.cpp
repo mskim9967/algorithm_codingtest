@@ -1,6 +1,6 @@
 /*
     Prob
-    2018 SCPC 2차 예선 2번 메모지
+    2021 SCPC 2차 예선 2번 패턴 매칭(부분 점수)
     Writer
     MyungSeung Kim(mskim9967@gmail.com)
 */

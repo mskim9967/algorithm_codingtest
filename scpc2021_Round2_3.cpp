@@ -1,6 +1,6 @@
 /*
     Prob
-    2018 SCPC 2차 예선 2번 메모지
+    2021 SCPC 2차 예선 3번 산탄총(오답)
     Writer
     MyungSeung Kim(mskim9967@gmail.com)
 */

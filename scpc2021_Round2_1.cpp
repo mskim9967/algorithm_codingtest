@@ -1,6 +1,6 @@
 /*
     Prob
-    2018 SCPC 2차 예선 2번 메모지
+    2021 SCPC 2차 예선 1번 원 안의 점
     Writer
     MyungSeung Kim(mskim9967@gmail.com)
 */
