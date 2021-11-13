@@ -1,0 +1,164 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    int[] member, fan;
+    
+    Main(BufferedReader br) throws Exception {
+        ArrayList<Integer> m = new ArrayList<Integer>();
+        for(int read = br.read(); read != '\n'; read = br.read()) 
+            m.add(read == 'F' ? 0 : 1);
+        member = new int[m.size()];
+        for(int i = 0; i < member.length; i++)
+            member[member.length - 1 - i] = m.get(i); 
+    
+        ArrayList<Integer> f = new ArrayList<Integer>();
+        for(int read = br.read(); read != '\n'; read = br.read())
+            f.add(read == 'F' ? 0 : 1);
+        fan = new int[f.size()];
+        for(int i = 0; i < fan.length; i++)
+            fan[i] = f.get(i);
+        
+        /*
+                String line = br.readLine();
+        member = new int[line.length()];
+        for(int i = 0; i < member.length; i++)
+            member[member.length - 1 - i] = line.charAt(i) == 'F' ? 0 : 1;
+        line = br.readLine();
+        fan = new int[line.length()];
+        for(int i = 0; i < fan.length; i++)
+            fan[i] = line.charAt(i) == 'F' ? 0 : 1;
+        */
+    }
+    
+    int count_hug() {
+        int ret = 0;
+        Karatsuba k = new Karatsuba(fan, member);
+        int[] res = k.karatsuba(k.a, k.b);
+        
+        for(int i = member.length - 1; i < fan.length; i++)
+            if(res[i] == 0) ret++;
+        return ret;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        int testCase = Integer.parseInt(br.readLine());
+        for(int i = 0; i < testCase; i++) {
+            Main f = new Main(br);
+            bw.write(f.count_hug() + "\n");
+        }
+        bw.flush();
+        bw.close();
+        br.close();
+    }
+}
+
+
+class Karatsuba{
+    int[] a, b;
+
+    Karatsuba(int[] aa, int[] bb) {
+        a = new int[aa.length];
+        b = new int[bb.length];
+        System.arraycopy(aa, 0, a, 0, aa.length);
+        System.arraycopy(bb, 0, b, 0, bb.length);
+    }
+ 
+    int[] karatsuba(int[] a, int[] b) {
+        if(isBigger(b, a)) {
+            int[] temp = a;
+            a = b;
+            b = temp;
+        }
+        int aLen = a.length, bLen = b.length;
+        if(bLen == 0)   return new int[0];
+        
+        int mid = aLen / 2;
+       
+        if(mid < 5)
+            return multiple(a, b);
+
+        int[] a0, a1, b0, b1;
+        a0 = new int[mid];
+        a1 = new int[aLen - mid];
+        b0 = new int[mid < bLen ? mid : bLen];
+        b1 = new int[mid < bLen ? bLen - mid : 0];
+        
+        System.arraycopy(a, 0, a0, 0, mid);
+        System.arraycopy(a, mid, a1, 0, aLen - mid);
+        System.arraycopy(b, 0, b0, 0, mid < bLen ? mid : bLen);
+        System.arraycopy(b, mid < bLen ? mid : 0, b1, 0, mid < bLen ? bLen - mid : 0);
+
+        int[] z0 = karatsuba(a0, b0);
+        int[] z2 = karatsuba(a1, b1);
+        int[] z1 = minus(minus(karatsuba(plus(a0, a1), plus(b0, b1)), z0), z2);
+        return plus(plus(shift(z2, mid * 2), shift(z1, mid)), z0);
+    }
+    
+    boolean isBigger(int[] a, int[] b) {
+        int aLen = a.length, bLen = b.length;
+        if(aLen < bLen) return false;
+        if(aLen > bLen) return true;
+        for(int i = aLen - 1; i >= 0; i--)
+            if(a[i] < b[i]) return false;
+        return true;
+    }
+ 
+     int[] convert_arr(int integer) {
+        int len = 0;
+        for(int i = integer; i != 0; i /= 10)    len++;
+        int ret[] = new int[len];
+        int temp = integer;
+        for(int i = 0; i < len; temp /= 10, i++)
+            ret[i] = (int)(temp % 10);
+        return ret;
+    }
+
+    int[] multiple(int[] a, int[] b) {
+        int ai = 0, bi = 0, aLen = a.length, bLen = b.length;
+        if(aLen == 0 || bLen == 0)  return new int[0];
+        for(int i = 0; i < aLen; i++)
+            ai += a[i] * (int)Math.pow(10, i);
+        for(int i = 0; i < bLen; i++)
+            bi += b[i] * (int)Math.pow(10, i);
+        return convert_arr(ai * bi);
+    }
+    
+    int[] plus(int[] a, int[] b) {
+        if(isBigger(b, a)) {
+            int[] temp = a;
+            a = b;
+            b = temp;
+        }
+        int aLen = a.length, bLen = b.length;
+        int[] ret = new int[aLen];
+        for(int i = 0; i < bLen; i++) 
+            ret[i] = a[i] + b[i];
+        return ret;
+    }
+    
+    int[] minus(int[] a, int[] b) {
+        if(isBigger(b, a)) {
+            int[] temp = a;
+            a = b;
+            b = temp;
+        }
+        int aLen = a.length, bLen = b.length;
+        int[] ret = new int[aLen];
+        for(int i = 0; i < bLen; i++) 
+            ret[i] = a[i] - b[i];
+        return ret;
+    }
+    
+  
+    int[] shift(int[] a, int n) {
+        int aLen = a.length;
+        if(aLen == 0) return new int[0];
+        int[] ret = new int[aLen + n];
+        System.arraycopy(a, 0, ret, n, aLen);
+        for(int i = 0; i < n; i++)   ret[i] = 0;
+        return ret;
+    }
+}
